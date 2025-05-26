@@ -13,3 +13,21 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id       Int           @id @default(autoincrement())
+  email    String        @unique
+  password String
+  name     String
+  inbox    InboxItem[]   // Relación uno a muchos
+}
+
+
+model InboxItem {
+  id         Int      @id @default(autoincrement())
+  content    String   // El texto capturado
+  capturedAt DateTime @default(now())
+  processed  Boolean  @default(false) // Si ya fue movido a otro módulo
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+}

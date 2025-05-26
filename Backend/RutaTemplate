@@ -1,0 +1,158 @@
+🧩 ¿Qué es el dominio inbox/?
+Es un módulo funcional que encapsula todo lo relacionado a la bandeja de entrada de GTD. Cada archivo cumple una función clara en la arquitectura.
+
+📁 Descripción y orden lógico de cada archivo
+1. ✅ inboxModel.ts (opcional, pero recomendable)
+📄 Qué es: Define los tipos (interfaces o clases) para los datos que maneja el módulo.
+
+📌 Para qué sirve:
+
+Tipado estricto en TypeScript
+
+Facilita testeo y comprensión
+
+Evita el uso de any
+
+ts
+Copy
+Edit
+// inboxModel.ts
+export interface InboxItem {
+  id: number;
+  userId: number;
+  content: string;
+  capturedAt: string;
+  processed: boolean;
+}
+📥 Orden de creación: 1° si quieres tener los tipos claros desde el comienzo.
+
+2. ✅ inboxRepository.ts
+📄 Qué es: Contiene la lógica de acceso a la base de datos, usando Prisma (o cualquier ORM que uses).
+
+📌 Para qué sirve:
+
+Encapsula las consultas a la DB
+
+Facilita testeo y reutilización
+
+Nunca se llama directamente desde el router
+
+ts
+Copy
+Edit
+// inboxRepository.ts
+import { prisma } from '../../common/utils/prisma';
+
+export const InboxRepository = {
+  findAllByUser: async (userId: number) => {
+    return prisma.inboxItem.findMany({ where: { userId } });
+  },
+  create: async (userId: number, content: string) => {
+    return prisma.inboxItem.create({
+      data: { userId, content },
+    });
+  }
+};
+📥 Orden de creación: 2° → necesitas esto antes de construir la lógica de negocio.
+
+3. ✅ inboxService.ts
+📄 Qué es: Contiene la lógica de negocio del dominio, por ejemplo: procesar items, aplicar reglas GTD, validar, etc.
+
+📌 Para qué sirve:
+
+Es el "cerebro" del módulo
+
+Llama a los métodos del repository
+
+NO maneja Express ni req/res
+
+ts
+Copy
+Edit
+// inboxService.ts
+import { InboxRepository } from './inboxRepository';
+
+export const InboxService = {
+  getUserInbox: (userId: number) => {
+    return InboxRepository.findAllByUser(userId);
+  },
+  captureItem: (userId: number, content: string) => {
+    return InboxRepository.create(userId, content);
+  }
+};
+📥 Orden de creación: 3° → conecta tu dominio con tus datos.
+
+4. ✅ inboxController.ts
+📄 Qué es: Controlador que traduce una petición HTTP en llamadas al servicio.
+
+📌 Para qué sirve:
+
+Recibe req y res
+
+Llama al InboxService
+
+Devuelve la respuesta
+
+ts
+Copy
+Edit
+// inboxController.ts
+import { Request, Response } from 'express';
+import { InboxService } from './inboxService';
+
+export const InboxController = {
+  getInbox: async (req: Request, res: Response) => {
+    const userId = req.user.id; // asumimos auth middleware
+    const inbox = await InboxService.getUserInbox(userId);
+    res.json(inbox);
+  },
+
+  postInbox: async (req: Request, res: Response) => {
+    const userId = req.user.id;
+    const { content } = req.body;
+    const newItem = await InboxService.captureItem(userId, content);
+    res.status(201).json(newItem);
+  }
+};
+📥 Orden de creación: 4° → cuando ya tienes servicio funcionando.
+
+5. ✅ inboxRouter.ts
+📄 Qué es: Define las rutas HTTP (usualmente con Express) y conecta cada ruta con su controlador.
+
+📌 Para qué sirve:
+
+Se importa en server.ts
+
+Define qué método responde a qué ruta
+
+Usa middlewares como auth
+
+ts
+Copy
+Edit
+// inboxRouter.ts
+import { Router } from 'express';
+import { InboxController } from './inboxController';
+
+export const inboxRouter = Router();
+
+inboxRouter.get('/', InboxController.getInbox);
+inboxRouter.post('/', InboxController.postInbox);
+📥 Orden de creación: 5° → lo último, conecta todo.
+
+🔄 Flujo completo
+scss
+Copy
+Edit
+[Cliente HTTP (Postman, frontend...)]
+     ↓
+[inboxRouter.ts] (define la ruta)
+     ↓
+[inboxController.ts] (procesa req/res)
+     ↓
+[inboxService.ts] (lógica de negocio)
+     ↓
+[inboxRepository.ts] (acceso a datos via Prisma)
+     ↓
+[DB]
+✅ ¿Quieres que te dé el contenido completo ya listo para cada uno de estos archivos usando Prisma?
