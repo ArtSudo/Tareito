@@ -17,7 +17,6 @@
 		"test:cov": "vitest run --coverage",
 		"check": "pnpm lint && pnpm format && pnpm build && pnpm test",
 		"create:gtd-module": "node create-module.js",
-		"generate": "prisma generate",
 		"db:generate": "pnpm exec prisma generate",
 		"db:migrate": "pnpm exec prisma migrate dev --name auto",
 		"db:migrate:reset": "pnpm exec prisma migrate reset",
