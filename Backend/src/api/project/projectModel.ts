@@ -1,3 +1,1 @@
-export interface Project {
-  // Define los tipos del modelo aquí
-}
+export type Project = {}

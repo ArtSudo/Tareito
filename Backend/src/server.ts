@@ -32,10 +32,10 @@ app.use(requestLogger);
 // Routes
 app.use("/health-check", healthCheckRouter);
 app.use("/users", userRouter);
-app.use('/api/inbox', inboxRouter);
+app.use('/inbox', inboxRouter);
 
 // Swagger UI
-app.use(openAPIRouter);
+app.use("/docs", openAPIRouter);
 
 // Error handlers
 app.use(errorHandler());

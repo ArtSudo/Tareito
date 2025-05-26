@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { commonValidations } from "@/common/utils/commonValidation";
-import { User as PrismaUser } from "@/generated/prisma";
+import type { User as PrismaUser } from "@/generated/prisma";
 
 extendZodWithOpenApi(z);
 

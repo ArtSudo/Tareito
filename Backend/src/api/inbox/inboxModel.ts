@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { commonValidations } from "@/common/utils/commonValidation";
-import { InboxItem as PrismaInboxItem } from '../../generated/prisma';
+import type { InboxItem as PrismaInboxItem } from '../../generated/prisma';
 //export type InboxItem = PrismaInboxItem;
 
 extendZodWithOpenApi(z);

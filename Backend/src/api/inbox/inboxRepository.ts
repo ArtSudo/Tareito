@@ -1,5 +1,5 @@
 import { prisma } from '../../common/utils/prisma';
-import { InboxItem } from './inboxModel';
+import type { InboxItem } from './inboxModel';
 
 export class InboxRepository {
   async findAllbyUserId(userId: number): Promise<InboxItem[]> {
