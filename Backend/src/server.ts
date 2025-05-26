@@ -11,6 +11,8 @@ import rateLimiter from "@/common/middleware/rateLimiter";
 import requestLogger from "@/common/middleware/requestLogger";
 import { env } from "@/common/utils/envConfig";
 
+import { inboxRouter } from './api/inbox/inboxRouter';
+
 const logger = pino({ name: "server start" });
 const app: Express = express();
 
@@ -30,6 +32,7 @@ app.use(requestLogger);
 // Routes
 app.use("/health-check", healthCheckRouter);
 app.use("/users", userRouter);
+app.use('/api/inbox', inboxRouter);
 
 // Swagger UI
 app.use(openAPIRouter);
