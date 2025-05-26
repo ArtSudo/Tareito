@@ -5,7 +5,7 @@ export class InboxRepository {
   async findAllbyUserId(userId: number): Promise<InboxItem[]> {
     return prisma.inboxItem.findMany({
       where: {userId},
-      orderBy: {capturedAt: 'desc'},
+      orderBy: {createdAt: 'desc'},
     });
   }
 
@@ -24,7 +24,7 @@ export class InboxRepository {
   async markAsProcessed(id: number): Promise<InboxItem> {
     return prisma.inboxItem.update({
       where: { id },
-      data: { processed: true }
+      data: { processed: true, updatedAt: new Date() }
     });
   }
   

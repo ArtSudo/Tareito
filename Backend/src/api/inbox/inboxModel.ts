@@ -6,11 +6,12 @@ import { InboxItem as PrismaInboxItem } from '../../generated/prisma';
 
 extendZodWithOpenApi(z);
 export const InboxItemSchema = z.object({
-  id: z.number().int(),
+  id: commonValidations.id,
   content: z.string().openapi({description: "Content of the inbox item"}),
-  capturedAt: z.date(),
   processed: z.boolean().default(false).openapi({description: "Content of the inbox item"}),
   userId: z.number().int(),
+  createdAt: z.date(),
+	updatedAt: z.date(),
 });
 
 export type InboxItem = z.infer<typeof InboxItemSchema>;

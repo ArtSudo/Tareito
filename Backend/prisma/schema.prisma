@@ -15,19 +15,21 @@ datasource db {
 }
 
 model User {
-  id       Int           @id @default(autoincrement())
-  email    String        @unique
-  password String
-  name     String
-  inbox    InboxItem[]   // Relación uno a muchos
+  id        Int           @id @default(autoincrement())
+  email     String        @unique
+  password  String
+  name      String
+  inbox     InboxItem[]   // Relación uno a muchos
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
-
 
 model InboxItem {
   id         Int      @id @default(autoincrement())
   content    String   // El texto capturado
-  capturedAt DateTime @default(now())
   processed  Boolean  @default(false) // Si ya fue movido a otro módulo
   userId     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
   user       User     @relation(fields: [userId], references: [id])
 }
