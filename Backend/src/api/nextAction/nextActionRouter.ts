@@ -1,21 +1,24 @@
-import express from "express";
+import express, { type Router } from "express";
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
 
+import { nextActionController } from "./nextActionController";
 import { validateRequest } from "@/common/utils/httpHandlers";
-import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 
 import {
   NextActionSchema,
   CreateNextActionSchema,
   GetNextActionByIdSchema,
   GetNextActionsByUserSchema,
+  GetNextActionsByProjectSchema,
+  RequestNextActionStatusSchema,
+  GetNextActionsByUserandStatusSchema
 } from "./nextActionModel";
 
-import { nextActionController } from "./nextActionController";
+import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 
 export const nextActionRegistry = new OpenAPIRegistry();
-export const nextActionRouter = express.Router();
+export const nextActionRouter : Router = express.Router();
 
 nextActionRegistry.register("NextAction", NextActionSchema);
 
@@ -49,7 +52,7 @@ nextActionRegistry.registerPath({
   path: "/next-action/project/{projectId}",
   tags: ["NextAction"],
   request: {
-    params: z.object({ projectId: z.coerce.number() }).shape,
+    params: GetNextActionsByProjectSchema.shape.params,
   },
   responses: createApiResponse(z.array(NextActionSchema), "Success"),
 });
@@ -61,8 +64,14 @@ nextActionRegistry.registerPath({
   path: "/next-action/{userId}/status",
   tags: ["NextAction"],
   request: {
-    params: GetNextActionsByUserSchema.shape.params,
-    query: z.object({ status: z.enum(["pending", "done"]) }).shape,
+    params: GetNextActionsByUserandStatusSchema.shape.params,
+    body: {
+      content: {
+        "application/json": {
+          schema: GetNextActionsByUserandStatusSchema.shape.body,
+        },
+      },
+    },
   },
   responses: createApiResponse(z.array(NextActionSchema), "Success"),
 });

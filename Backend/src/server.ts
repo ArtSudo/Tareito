@@ -12,6 +12,7 @@ import requestLogger from "@/common/middleware/requestLogger";
 import { env } from "@/common/utils/envConfig";
 
 import { inboxRouter } from './api/inbox/inboxRouter';
+import { nextActionRouter } from "@/api/nextAction/nextActionRouter";
 
 const logger = pino({ name: "server start" });
 const app: Express = express();
@@ -36,6 +37,8 @@ app.use('/inbox', inboxRouter);
 
 // Swagger UI
 app.use("/docs", openAPIRouter);
+
+app.use("/next-action", nextActionRouter);
 
 // Error handlers
 app.use(errorHandler());

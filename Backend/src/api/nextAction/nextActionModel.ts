@@ -43,3 +43,25 @@ export const GetNextActionsByUserSchema = z.object({
     userId: commonValidations.id,
   }),
 });
+
+
+export const GetNextActionsByProjectSchema = z.object({
+  params: z.object({
+    projectId: commonValidations.id,
+  })
+});
+
+export const RequestNextActionStatusSchema = z.object({
+  query: z.object({
+    status: z.enum(["pending", "completed", "archived"]).default("pending"),
+  }),
+});
+
+export const GetNextActionsByUserandStatusSchema = z.object({
+  params: z.object({
+    userId: commonValidations.id,
+  }),
+  body: z.object({
+    status: z.enum(["pending", "completed", "archived"]).default("pending"),
+  }),
+});
