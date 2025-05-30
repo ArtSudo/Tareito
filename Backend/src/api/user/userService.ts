@@ -45,6 +45,32 @@ export class UserService {
 			return ServiceResponse.failure("An error occurred while finding user.", null, StatusCodes.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	async create(userData: Partial<User>): Promise<ServiceResponse<User | null>> {
+		try {
+			const newUser = await this.userRepository.create(userData as User);
+			return ServiceResponse.success<User>("User created successfully", newUser, StatusCodes.CREATED);
+		} catch (ex) {
+			const errorMessage = `Error creating user: ${(ex as Error).message}`;
+			logger.error(errorMessage);
+			return ServiceResponse.failure("An error occurred while creating the user.", null, StatusCodes.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	async delete(id: number): Promise<ServiceResponse<boolean>> {
+		try {
+			const deleted = await this.userRepository.delete(id);
+			if (deleted) {
+				return ServiceResponse.success<boolean>("User deleted successfully", true);
+			} else {
+				return ServiceResponse.failure("User not found", false, StatusCodes.NOT_FOUND);
+			}
+		} catch (ex) {
+			const errorMessage = `Error deleting user with id ${id}: ${(ex as Error).message}`;
+			logger.error(errorMessage);
+			return ServiceResponse.failure("An error occurred while deleting the user.", false, StatusCodes.INTERNAL_SERVER_ERROR);
+		}
+	}
 }
 
 export const userService = new UserService();

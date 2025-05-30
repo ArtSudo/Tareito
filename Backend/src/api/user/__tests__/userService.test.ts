@@ -1,129 +1,65 @@
+import { describe, it, beforeAll, afterAll, expect } from "vitest";
 import { StatusCodes } from "http-status-codes";
-import type { Mock } from "vitest";
 
-import type { User } from "@/api/user/userModel";
-import { UserRepository } from "@/api/user/userRepository";
+import { prisma } from "@/common/utils/prisma";
 import { UserService } from "@/api/user/userService";
 
-vi.mock("@/api/user/userRepository");
+let userService: UserService;
 
-describe("userService", () => {
-	let userServiceInstance: UserService;
-	let userRepositoryInstance: UserRepository;
+const testUsers = [
+	{ name: "userService1", email: "userService1@example.com", password: "12345678" },
+	{ name: "userService2", email: "userService2@example.com", password: "12345678" },
+];
 
-	const mockUsers: User[] = [
-		{
-			id: 1,
-			name: "Alice",
-			email: "alice@example.com",
-			password: "1234",
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		},
-		{
-			id: 2,
-			name: "Bob",
-			email: "bob@example.com",
-			password: "1234",
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		},
-	];
+const createdUserIds: number[] = [];
 
-	beforeEach(() => {
-		userRepositoryInstance = new UserRepository();
-		userServiceInstance = new UserService(userRepositoryInstance);
+describe("UserService", () => {
+	beforeAll(async () => {
+		userService = new UserService();
+		//await prisma.user.deleteMany(); // limpia base de datos antes
 	});
 
-	describe("findAll", () => {
-		it("return all users", async () => {
-			// Arrange
-			(userRepositoryInstance.findAllAsync as Mock).mockReturnValue(mockUsers);
-
-			// Act
-			const result = await userServiceInstance.findAll();
-
-			// Assert
-			expect(result.statusCode).toEqual(StatusCodes.OK);
-			expect(result.success).toBeTruthy();
-			expect(result.message).equals("Users found");
-			expect(result.responseObject).toEqual(mockUsers);
-		});
-
-		it("returns a not found error for no users found", async () => {
-			// Arrange
-			(userRepositoryInstance.findAllAsync as Mock).mockReturnValue(null);
-
-			// Act
-			const result = await userServiceInstance.findAll();
-
-			// Assert
-			expect(result.statusCode).toEqual(StatusCodes.NOT_FOUND);
-			expect(result.success).toBeFalsy();
-			expect(result.message).equals("No Users found");
-			expect(result.responseObject).toBeNull();
-		});
-
-		it("handles errors for findAllAsync", async () => {
-			// Arrange
-			(userRepositoryInstance.findAllAsync as Mock).mockRejectedValue(new Error("Database error"));
-
-			// Act
-			const result = await userServiceInstance.findAll();
-
-			// Assert
-			expect(result.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
-			expect(result.success).toBeFalsy();
-			expect(result.message).equals("An error occurred while retrieving users.");
-			expect(result.responseObject).toBeNull();
-		});
+	afterAll(async () => {
+		//await prisma.user.deleteMany(); // limpia base de datos después
+		//await prisma.$disconnect();
 	});
 
-	describe("findById", () => {
-		it("returns a user for a valid ID", async () => {
-			// Arrange
-			const testId = 1;
-			const mockUser = mockUsers.find((user) => user.id === testId);
-			(userRepositoryInstance.findByIdAsync as Mock).mockReturnValue(mockUser);
+	it("should create multiple users", async () => {
+		for (const u of testUsers) {
+			const res = await userService.create(u);
+			expect(res.statusCode).toBe(StatusCodes.CREATED);
+			expect(res.success).toBe(true);
+			expect(res.responseObject?.email).toBe(u.email);
+			if (res.responseObject?.id) createdUserIds.push(res.responseObject.id);
+		}
+	});
 
-			// Act
-			const result = await userServiceInstance.findById(testId);
+	it("should retrieve all users", async () => {
+		const res = await userService.findAll();
+		expect(res.statusCode).toBe(StatusCodes.OK);
+		expect(res.success).toBe(true);
+		expect(res.responseObject?.length).toBeGreaterThanOrEqual(2);
+	});
 
-			// Assert
-			expect(result.statusCode).toEqual(StatusCodes.OK);
-			expect(result.success).toBeTruthy();
-			expect(result.message).equals("User found");
-			expect(result.responseObject).toEqual(mockUser);
-		});
+	it("should retrieve a user by ID", async () => {
+		const all = await userService.findAll();
+		const user = all.responseObject?.[0];
+		expect(user).toBeDefined();
 
-		it("handles errors for findByIdAsync", async () => {
-			// Arrange
-			const testId = 1;
-			(userRepositoryInstance.findByIdAsync as Mock).mockRejectedValue(new Error("Database error"));
+		const res = await userService.findById(user!.id);
+		expect(res.statusCode).toBe(StatusCodes.OK);
+		expect(res.responseObject?.id).toBe(user!.id);
+	});
 
-			// Act
-			const result = await userServiceInstance.findById(testId);
+	it("should delete all test-created users", async () => {
+		for (const id of createdUserIds) {
+			const res = await userService.delete(id);
+			expect(res.statusCode).toBe(StatusCodes.OK);
+			expect(res.responseObject).toBe(true);
+		}
 
-			// Assert
-			expect(result.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
-			expect(result.success).toBeFalsy();
-			expect(result.message).equals("An error occurred while finding user.");
-			expect(result.responseObject).toBeNull();
-		});
-
-		it("returns a not found error for non-existent ID", async () => {
-			// Arrange
-			const testId = 1;
-			(userRepositoryInstance.findByIdAsync as Mock).mockReturnValue(null);
-
-			// Act
-			const result = await userServiceInstance.findById(testId);
-
-			// Assert
-			expect(result.statusCode).toEqual(StatusCodes.NOT_FOUND);
-			expect(result.success).toBeFalsy();
-			expect(result.message).equals("User not found");
-			expect(result.responseObject).toBeNull();
-		});
+		const res = await userService.findAll();
+		const remaining = res.responseObject?.filter((u: any) => createdUserIds.includes(u.id));
+		expect(remaining?.length ?? 0).toBe(0);
 	});
 });

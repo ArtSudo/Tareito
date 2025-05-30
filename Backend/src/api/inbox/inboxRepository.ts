@@ -15,6 +15,21 @@ export class InboxRepository {
     });
   }
 
+  async findByStatusProcessed(status: boolean): Promise<InboxItem[]>{
+    return prisma.inboxItem.findMany({
+      where: {processed : status},
+      orderBy: {createdAt: 'desc'}
+    });
+  }
+
+  async findByUserAndStatusProcessed(userId: number, status: boolean): Promise<InboxItem[]> {
+  return prisma.inboxItem.findMany({
+    where: { userId, processed: status },
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
+
   async create(userId: number, content: string): Promise<InboxItem> {
     return prisma.inboxItem.create({
       data: { userId, content}

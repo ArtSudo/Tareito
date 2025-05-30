@@ -1,47 +1,50 @@
+// inboxModel.ts (complementario)
 import { z } from "zod";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { commonValidations } from "@/common/utils/commonValidation";
-import type { InboxItem as PrismaInboxItem } from '../../generated/prisma';
-//export type InboxItem = PrismaInboxItem;
 
 extendZodWithOpenApi(z);
+
 export const InboxItemSchema = z.object({
   id: commonValidations.id,
-  content: z.string().openapi({description: "Content of the inbox item"}),
-  processed: z.boolean().default(false).openapi({description: "Content of the inbox item"}),
+  content: z.string().openapi({ description: "Content of the inbox item" }),
+  processed: z.boolean().default(false).openapi({ description: "Whether the inbox item has been processed" }),
   userId: z.number().int(),
   createdAt: z.date(),
-	updatedAt: z.date(),
+  updatedAt: z.date(),
 });
 
 export type InboxItem = z.infer<typeof InboxItemSchema>;
 
-//Validador Opcional
-const _checkInboxItem: PrismaInboxItem = {} as InboxItem;
-const _checkInboxItem2: InboxItem = {} as PrismaInboxItem;
-
-
-////// API Params
-
-export const UserPathParamSchema = z.object({
-  userId: z.string().transform((val) => Number(val)),
+export const GetInboxItemSchema = z.object({
+  params: z.object({
+    id: commonValidations.id,
+  }),
 });
 
-export const InboxItemIdParamSchema = z.object({
-  id: z.string().regex(/^\d+$/).transform(Number),
+export const GetInboxByUserSchema = z.object({
+  params: z.object({
+    userId: commonValidations.id,
+  }),
+});
+
+export const GetByStatusSchema = z.object({
+  query: z.object({
+    status: z.enum(["true", "false"]),
+  }),
 });
 
 export const CreateInboxItemSchema = z.object({
-  content: z.string().min(1).describe("Contenido del item"),
-});
-
-////// API Request
-
-export const CreateInboxItemRequestSchema = z.object({
   params: z.object({
-    userId: z.string().regex(/^\d+$/).transform(Number),
+    userId: commonValidations.id,
   }),
   body: z.object({
     content: z.string().min(1),
+  }),
+});
+
+export const ProcessInboxItemSchema = z.object({
+  params: z.object({
+    id: commonValidations.id,
   }),
 });

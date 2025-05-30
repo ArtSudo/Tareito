@@ -24,4 +24,15 @@ export class UserRepository {
 			}
 		});
 	}
+
+	async delete(id: number): Promise<boolean> {
+		try {
+			await prisma.user.delete({ where: { id } });
+			return true;
+		} catch (error) {
+			console.error("Error deleting user:", error);
+			return false;
+		}
+	}
+
 }
