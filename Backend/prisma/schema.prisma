@@ -15,21 +15,82 @@ datasource db {
 }
 
 model User {
-  id        Int           @id @default(autoincrement())
-  email     String        @unique
-  password  String
-  name      String
-  inbox     InboxItem[]   // Relación uno a muchos
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  id            Int             @id @default(autoincrement())
+  email         String          @unique
+  password      String
+  name          String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @default(now())
+
+  inboxItems    InboxItem[]
+  nextActions   NextAction[]
+  projects      Project[]
+  contexts      Context[]
+  references    ReferenceItem[]
 }
 
 model InboxItem {
-  id         Int      @id @default(autoincrement())
-  content    String   // El texto capturado
-  processed  Boolean  @default(false) // Si ya fue movido a otro módulo
-  userId     Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          Int          @id @default(autoincrement())
+  content     String
+  processed   Boolean      @default(false)
+  userId      Int
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now())
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nextAction  NextAction[]  // Relación opcional uno a uno
+}
+
+model NextAction {
+  id          Int          @id @default(autoincrement())
+  content     String
+  status      String       @default("pending") // "pending" | "done"
+  userId      Int
+  projectId   Int?
+  inboxItemId Int?
+  contextId   Int?
+  dueDate     DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now())
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project     Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  inboxItem   InboxItem?   @relation(fields: [inboxItemId], references: [id], onDelete: SetNull)
+  context     Context?     @relation(fields: [contextId], references: [id], onDelete: SetNull)
+}
+
+model Project {
+  id          Int          @id @default(autoincrement())
+  title       String
+  description String?
+  status      String       @default("active") // "active" | "completed" | "archived"
+  userId      Int
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now())
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nextActions NextAction[]
+}
+
+model Context {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  userId      Int
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now())
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nextActions NextAction[]
+}
+
+model ReferenceItem {
+  id          Int          @id @default(autoincrement())
+  title       String
+  content     String?
+  fileUrl     String?
+  userId      Int
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now())
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
