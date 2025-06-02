@@ -14,6 +14,7 @@ import { env } from "@/common/utils/envConfig";
 import { inboxRouter } from './api/inbox/inboxRouter';
 import { nextActionRouter } from "@/api/nextAction/nextActionRouter";
 import { projectRouter } from "@/api/project/projectRouter";
+import { contextRouter } from "@/api/context/contextRouter";
 
 const logger = pino({ name: "server start" });
 const app: Express = express();
@@ -41,6 +42,7 @@ app.use("/docs", openAPIRouter);
 
 app.use("/next-action", nextActionRouter);
 app.use("/project", projectRouter);
+app.use("/context", contextRouter);
 
 
 // Error handlers
