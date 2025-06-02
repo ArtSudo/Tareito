@@ -22,6 +22,8 @@ const envSchema = z.object({
     .default(1000),
 
   COMMON_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(1000),
+
+  AI_TOCKEN: z.string().min(1).default(""),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

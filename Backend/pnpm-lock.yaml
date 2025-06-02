@@ -11,6 +11,12 @@ importers:
       '@asteasolutions/zod-to-openapi':
         specifier: 7.3.2
         version: 7.3.2(zod@3.25.28)
+      '@langchain/core':
+        specifier: ^0.3.57
+        version: 0.3.57(openai@5.0.1(zod@3.25.28))
+      '@langchain/openai':
+        specifier: ^0.5.11
+        version: 0.5.11(@langchain/core@0.3.57(openai@5.0.1(zod@3.25.28)))
       '@prisma/client':
         specifier: ^6.8.2
         version: 6.8.2(prisma@6.8.2(typescript@5.8.3))(typescript@5.8.3)
