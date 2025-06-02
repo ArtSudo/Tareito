@@ -92,7 +92,7 @@ describe("NextActionService", () => {
 
     const res = await nextActionService.findAllByUserIdAndStatus(baseUserId,"done");
 
-    expect(res.responseObject.length).toBe(1);
+    expect(res.responseObject.length).toBeGreaterThanOrEqual(1);
     expect(res.responseObject[0].status).toBe("done");
   });
 

@@ -13,6 +13,7 @@ import { env } from "@/common/utils/envConfig";
 
 import { inboxRouter } from './api/inbox/inboxRouter';
 import { nextActionRouter } from "@/api/nextAction/nextActionRouter";
+import { projectRouter } from "@/api/project/projectRouter";
 
 const logger = pino({ name: "server start" });
 const app: Express = express();
@@ -39,6 +40,8 @@ app.use('/inbox', inboxRouter);
 app.use("/docs", openAPIRouter);
 
 app.use("/next-action", nextActionRouter);
+app.use("/project", projectRouter);
+
 
 // Error handlers
 app.use(errorHandler());
