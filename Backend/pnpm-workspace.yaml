@@ -1,2 +1,9 @@
 ignoredBuiltDependencies:
   - '@prisma/client'
+onlyBuiltDependencies:
+  - '@biomejs/biome'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@scarf/scarf'
+  - esbuild
+  - prisma
