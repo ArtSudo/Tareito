@@ -15,6 +15,7 @@ import { inboxRouter } from './api/inbox/inboxRouter';
 import { nextActionRouter } from "@/api/nextAction/nextActionRouter";
 import { projectRouter } from "@/api/project/projectRouter";
 import { contextRouter } from "@/api/context/contextRouter";
+import { botRouter  } from "@/bot/botRouter";
 
 const logger = pino({ name: "server start" });
 const app: Express = express();
@@ -32,6 +33,10 @@ app.use(rateLimiter);
 // Request logging
 app.use(requestLogger);
 
+app.get("/", (_req, res) => {
+  res.send("🚀 API de Tareito funcionando correctamente.");
+});
+
 // Routes
 app.use("/health-check", healthCheckRouter);
 app.use("/users", userRouter);
@@ -43,6 +48,8 @@ app.use("/docs", openAPIRouter);
 app.use("/next-action", nextActionRouter);
 app.use("/project", projectRouter);
 app.use("/context", contextRouter);
+
+app.use("/bot",botRouter);
 
 
 // Error handlers

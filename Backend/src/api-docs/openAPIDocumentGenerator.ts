@@ -6,10 +6,11 @@ import { inboxRegistry  } from "@/api/inbox/inboxRouter";
 import { nextActionRegistry } from "@/api/nextAction/nextActionRouter";
 import { projectRegistry } from "@/api/project/projectRouter"
 import { contextRegistry } from "@/api/context/contextRouter"
+import { botRegistry } from "@/bot/botRouter";
 export type OpenAPIDocument = ReturnType<OpenApiGeneratorV3["generateDocument"]>;
 
 export function generateOpenAPIDocument(): OpenAPIDocument {
-	const registry = new OpenAPIRegistry([healthCheckRegistry, userRegistry,inboxRegistry,nextActionRegistry,projectRegistry,contextRegistry]);
+	const registry = new OpenAPIRegistry([healthCheckRegistry, userRegistry,inboxRegistry,nextActionRegistry,projectRegistry,contextRegistry,botRegistry]);
 	const generator = new OpenApiGeneratorV3(registry.definitions);
 
 	return generator.generateDocument({
