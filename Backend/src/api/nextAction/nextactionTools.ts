@@ -48,7 +48,7 @@ export class GetNextActionTool extends StructuredTool {
 // 📝 Crear una nueva next action
 export class CreateNextActionTool extends StructuredTool {
   name = "create_next_action";
-  description = "Crea una nueva acción siguiente. Formato: userId:::contenido";
+  description = "Crea una nueva acción siguiente para un usuario";
 
   schema = z.object({
     user_id: z.string().describe("ID del usuario como string numérico"),
@@ -58,8 +58,8 @@ export class CreateNextActionTool extends StructuredTool {
   schemaInput = this.schema;
 
   async _call({ user_id, content }: { user_id: string; content: string }) {
-    const userId = Number.parseInt(user_id.trim(), 10);
     try {
+      const userId = Number.parseInt(user_id.trim(), 10);  
       if (!content || content.trim() === "") return "⚠️ El contenido no puede estar vacío.";
       if (isNaN(userId)) return "⚠️ El ID del usuario debe ser un número.";
 
