@@ -8,7 +8,7 @@
 	"main": "index.ts",
 	"private": true,
 	"scripts": {
-		"build": "tsc && tsup && pnpm exec prisma migrate reset",
+		"build": "tsc && tsup && pnpm exec prisma migrate reset && node --import=tsx --watch prisma/seed.ts",
 		"start:dev": "node --import=tsx --watch src/index.ts",
 		"start:prod": "node dist/index.js",
 		"lint": "biome lint --fix",

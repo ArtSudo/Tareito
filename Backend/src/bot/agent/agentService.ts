@@ -3,36 +3,50 @@ import { prompt } from "@/bot/agent/promptTemplates";
 import { getSessionHistory } from "@/bot/memory/memoryService";
 import { getLLM } from "@/bot/llm/llmService";
 import { createReactAgent, AgentExecutor, createStructuredChatAgent } from "langchain/agents";
-import { Tool } from "@langchain/core/tools";
+import { ConsoleCallbackHandler } from "@langchain/core/tracers/console";
+import { 
+    GetInboxByUserTool,
+    GetInboxItemTool,
+    CreateInboxItemTool,
+    MarkInboxItemAsProcessedTool,
+    GetInboxByUserAndStatusTool
+} from "@/api/inbox/inboxTools"
 
-class DateTool extends Tool {
-  name: string;
-  description: string;
-  constructor() {
-    super();
-    this.name = "get_current_date";
-    this.description = "Devuelve la fecha y hora actual en formato ISO.";
-  }
+import {
+    GetNextActionsByUserTool,
+    GetNextActionTool,
+    CreateNextActionTool,
+    MarkNextActionAsDoneTool,
+} from "@/api/nextAction/nextactionTools"
 
-  async _call(_input: string) {
-    return new Date().toISOString();
-  }
-}
+const handler = new ConsoleCallbackHandler();
 
-export const dateTool = new DateTool();
+const Tools = [
+  new GetInboxByUserTool(),
+  new GetInboxItemTool(),
+  new CreateInboxItemTool(),
+  new MarkInboxItemAsProcessedTool(),
+  new GetInboxByUserAndStatusTool(),
+  new GetNextActionsByUserTool(),
+  new GetNextActionTool(),
+  new CreateNextActionTool(),
+  new MarkNextActionAsDoneTool(),
+];
 
 export async function initAgent(sessionId: string) {
     const llm = getLLM();
 
     const agent = await createStructuredChatAgent({
         llm,
-        tools: [dateTool],
-        prompt
+        tools: Tools,
+        prompt,
     });
 
     const agentExecutor = new AgentExecutor({
         agent,
-        tools: [dateTool],
+        tools: Tools,
+        maxIterations: 10,
+        callbacks: [handler]
     });
 
     const runnable = new RunnableWithMessageHistory({
