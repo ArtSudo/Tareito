@@ -16,6 +16,8 @@ import { nextActionRouter } from "@/api/nextAction/nextActionRouter";
 import { projectRouter } from "@/api/project/projectRouter";
 import { contextRouter } from "@/api/context/contextRouter";
 import { botRouter  } from "@/bot/botRouter";
+import path from "path";
+
 
 const logger = pino({ name: "server start" });
 const app: Express = express();
@@ -33,8 +35,11 @@ app.use(rateLimiter);
 // Request logging
 app.use(requestLogger);
 
+// Si tu HTML está en /public/index.html
+app.use(express.static(path.join(__dirname, "../public")));
+
 app.get("/", (_req, res) => {
-  res.send("🚀 API de Tareito funcionando correctamente.");
+  res.sendFile(path.join(__dirname, "../public/index.html"));
 });
 
 // Routes
