@@ -1,11 +1,14 @@
 
-import { StructuredTool } from "@langchain/core/tools";
+import { StructuredTool, ToolInputParsingException } from "@langchain/core/tools";
+import { ToolMessage } from "@langchain/core/messages/tool";
+import { LenientStructuredTool } from "@/bot/llm/LenientStructuredTool"
 import { z } from "zod";
 import { nextActionService } from "@/api/nextAction/nextActionService";
 import { userService } from "@/api/user/userService";
 
+
 // 📋 Obtener next actions por usuario
-export class GetNextActionsByUserTool extends StructuredTool {
+export class GetNextActionsByUserTool extends LenientStructuredTool {
   name = "get_next_actions_by_user";
   description = "Obtiene todas las acciones siguientes de un usuario.";
 
@@ -25,7 +28,7 @@ export class GetNextActionsByUserTool extends StructuredTool {
 }
 
 // 🔍 Obtener una next action por su ID
-export class GetNextActionTool extends StructuredTool {
+export class GetNextActionTool extends LenientStructuredTool {
   name = "get_next_action";
   description = "Obtiene una acción siguiente por su ID. Formato: actionId";
 
@@ -46,13 +49,13 @@ export class GetNextActionTool extends StructuredTool {
 }
 
 // 📝 Crear una nueva next action
-export class CreateNextActionTool extends StructuredTool {
+export class CreateNextActionTool extends LenientStructuredTool {
   name = "create_next_action";
-  description = "Crea una nueva acción siguiente para un usuario";
+  description = "Crea una nueva acción siguiente para un usuario. Requiere user_id y contenido.Action Input: {user_id:1,content: Diseñar el prototipo del robot}";
 
   schema = z.object({
-    user_id: z.string().describe("ID del usuario como string numérico"),
-    content: z.string().min(1, "Contenido requerido").describe("Contenido del item")
+    user_id: z.string().describe("user_id: ID del usuario como string numérico"),
+    content: z.string().min(1).describe("content: Contenido de la acción siguiente")
   });
 
   schemaInput = this.schema;
@@ -74,10 +77,11 @@ export class CreateNextActionTool extends StructuredTool {
       return `❌ Error al crear la acción: ${(err as Error).message}`;
     }
   }
+
 }
 
 
-export class MarkNextActionAsDoneTool extends StructuredTool {
+export class MarkNextActionAsDoneTool extends LenientStructuredTool {
   name = "mark_next_action_as_done";
   description = "Marca una acción como completada. Formato: actionId";
 

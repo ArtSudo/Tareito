@@ -1,12 +1,12 @@
-import { StructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
 import { inboxService } from "@/api/inbox/inboxService";
 import { userService } from "@/api/user/userService";
+import { LenientStructuredTool } from "@/bot/llm/LenientStructuredTool"
 
-// 📥 Obtener todos los inbox items de un usuario
-export class GetInboxByUserTool extends StructuredTool {
+// 📥 Obtener todos los inbox s de un usuario
+export class GetInboxByUserTool extends LenientStructuredTool {
     name = "get_inbox_by_user";
-    description = "Obtiene todos los items del inbox para un usuario.";
+    description = "Obtiene todos los s del inbox para un usuario.";
 
     schema = z.object({
         user_id: z.string().describe("ID del usuario como string numérico")
@@ -25,23 +25,23 @@ export class GetInboxByUserTool extends StructuredTool {
     }
 }
 
-// 🔍 Obtener un inbox item por su ID
-export class GetInboxItemTool extends StructuredTool {
-  name = "get_inbox_item";
-  description = "Obtiene un item de inbox por su ID.";
+// 🔍 Obtener un inbox  por su ID
+export class GetInboxTool extends LenientStructuredTool {
+  name = "get_inbox";
+  description = "Obtiene los inbox por su ID.";
 
   schema = z.object({
-    item_id: z.string().describe("ID del item como string numérico")
+    _id: z.string().describe("ID del  como string numérico")
   });
 
   schemaInput = this.schema
 
-  async _call({ item_id }: { item_id: string }) {
-    const id = parseInt(item_id, 10);
+  async _call({ _id }: { _id: string }) {
+    const id = parseInt(_id, 10);
     if (isNaN(id)) return "ID inválido.";
     try {
         const result = await inboxService.findById(id);
-        if (!result.responseObject) return `❌ No se encontró el item con ID ${id}.`;
+        if (!result.responseObject) return `❌ No se encontró el  con ID ${id}.`;
         return JSON.stringify(result.responseObject);
     } catch (err) {
     return `❌ Error al ejecutar ${this.name}: ${(err as Error).message}`;
@@ -49,14 +49,14 @@ export class GetInboxItemTool extends StructuredTool {
   }
 }
 
-// 📝 Crear un nuevo inbox item
-export class CreateInboxItemTool extends StructuredTool {
-  name = "create_inbox_item";
-  description = "Crea un nuevo item de inbox para un usuario.";
+// 📝 Crear un nuevo inbox 
+export class CreateInboxTool extends LenientStructuredTool {
+  name = "create_inbox";
+  description = "Crea un nuevo inbox para un usuario.";
 
   schema = z.object({
     user_id: z.string().describe("ID del usuario como string numérico"),
-    content: z.string().min(1, "Contenido requerido").describe("Contenido del item")
+    content: z.string().min(1, "Contenido requerido").describe("Contenido del ")
   });
 
   schemaInput = this.schema
@@ -69,44 +69,44 @@ export class CreateInboxItemTool extends StructuredTool {
 
     try {
       const result = await inboxService.createItem(userId, content.trim());
-      if (!result.responseObject?.id) throw new Error("Error al crear item.");
-      return `✅ Item creado con ID: ${result.responseObject.id}`;
+      if (!result.responseObject?.id) throw new Error("Error al crear .");
+      return `✅  creado con ID: ${result.responseObject.id}`;
     } catch (err) {
       return `❌ Error: ${(err as Error).message}`;
     }
   }
 }
 
-// ✅ Marcar un inbox item como procesado
-export class MarkInboxItemAsProcessedTool extends StructuredTool {
-  name = "mark_inbox_item_as_processed";
-  description = "Marca un item como procesado.";
+// ✅ Marcar un inbox  como procesado
+export class MarkInboxAsProcessedTool extends LenientStructuredTool {
+  name = "mark_inbox__as_processed";
+  description = "Marca un  como procesado.";
 
   schema = z.object({
-    item_id: z.string().describe("ID del item como string numérico")
+    _id: z.string().describe("ID del  como string numérico")
   });
 
   schemaInput = this.schema
 
-  async _call({ item_id }: { item_id: string }) {
+  async _call({ _id }: { _id: string }) {
 
-    const id = parseInt(item_id, 10);
+    const id = parseInt(_id, 10);
     if (isNaN(id)) return "ID inválido.";
 
     try {
       const result = await inboxService.markAsProcessed(id);
-      if (!result.responseObject) return `❌ No se pudo procesar el item con ID ${id}.`;
-      return `✅ Item ${id} marcado como procesado`;
+      if (!result.responseObject) return `❌ No se pudo procesar el  con ID ${id}.`;
+      return `✅  ${id} marcado como procesado`;
     } catch (err) {
       return `❌ Error: ${(err as Error).message}`;
     }
   }
 }
 
-// 📥📊 Obtener inbox items por usuario y estado
-export class GetInboxByUserAndStatusTool extends StructuredTool {
+// 📥📊 Obtener inbox s por usuario y estado
+export class GetInboxByUserAndStatusTool extends LenientStructuredTool {
   name = "get_inbox_by_user_and_status";
-  description = "Obtiene items por usuario y estado de procesamiento.";
+  description = "Obtiene s por usuario y estado de procesamiento.";
 
     schema = z.object({
     user_id: z.string().describe("ID del usuario como string numérico"),

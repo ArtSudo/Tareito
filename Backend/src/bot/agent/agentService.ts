@@ -6,9 +6,9 @@ import { createReactAgent, AgentExecutor, createStructuredChatAgent } from "lang
 import { ConsoleCallbackHandler } from "@langchain/core/tracers/console";
 import { 
     GetInboxByUserTool,
-    GetInboxItemTool,
-    CreateInboxItemTool,
-    MarkInboxItemAsProcessedTool,
+    GetInboxTool,
+    CreateInboxTool,
+    MarkInboxAsProcessedTool,
     GetInboxByUserAndStatusTool
 } from "@/api/inbox/inboxTools"
 
@@ -23,9 +23,9 @@ const handler = new ConsoleCallbackHandler();
 
 const Tools = [
   new GetInboxByUserTool(),
-  new GetInboxItemTool(),
-  new CreateInboxItemTool(),
-  new MarkInboxItemAsProcessedTool(),
+  new GetInboxTool(),
+  new CreateInboxTool(),
+  new MarkInboxAsProcessedTool(),
   new GetInboxByUserAndStatusTool(),
   new GetNextActionsByUserTool(),
   new GetNextActionTool(),
@@ -45,7 +45,7 @@ export async function initAgent(sessionId: string) {
     const agentExecutor = new AgentExecutor({
         agent,
         tools: Tools,
-        maxIterations: 10,
+        maxIterations: 20,
         callbacks: [handler]
     });
 
