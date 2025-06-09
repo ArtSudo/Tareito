@@ -1,39 +1,22 @@
-import { isAIMessage,MessageContent } from "@langchain/core/messages";
-import { initAgent } from "@/bot/agent/agentService";
-import { getSessionHistory } from "@/bot/memory/memoryService";
+import { type GraphState } from "@/bot/graph/graphModel";
+import { graph } from "@/bot/graph/graphService";
 
 export async function handleUserMessage(userId: string, message: string): Promise<string> {
-    const agent = await initAgent(userId);
-
-    const history = await getSessionHistory(userId).getMessages();
-    console.log("📜 Historial de la sesión:", history);
-
-    const response = await agent.invoke(
-        { input: message },
-        {
+    const config = {
         configurable: {
-            sessionId: userId,
+        thread_id: userId, // clave para multiusuario
         },
-        }
+    };
+
+    const initialState: GraphState = {
+        idUser: userId,
+        input: message,
+    }
+
+    const result = await graph.invoke(
+        initialState,
+        config,
     );
 
-    // El contenido vendrá como response.output
-    const content = response.output as MessageContent;
-
-    if (typeof content === "string") {
-        return content;
-    }
-
-    if (Array.isArray(content)) {
-        return content
-        .map((part) => {
-            if (part.type === "text" && typeof (part as any).text === "string") {
-            return (part as any).text;
-            }
-            return "";
-        })
-        .join("\n");
-    }
-
-    return "No se pudo interpretar la respuesta del asistente.";
+    return result.output ? result.output : "No se pudo interpretar la respuesta del asistente.";
 }

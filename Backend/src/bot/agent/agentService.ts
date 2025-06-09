@@ -3,7 +3,6 @@ import { prompt } from "@/bot/agent/promptTemplates";
 import { getSessionHistory } from "@/bot/memory/memoryService";
 import { getLLM } from "@/bot/llm/llmService";
 import { createReactAgent, AgentExecutor, createStructuredChatAgent } from "langchain/agents";
-import { ConsoleCallbackHandler } from "@langchain/core/tracers/console";
 import { 
     GetInboxByUserTool,
     GetInboxTool,
@@ -18,8 +17,6 @@ import {
     CreateNextActionTool,
     MarkNextActionAsDoneTool,
 } from "@/api/nextAction/nextactionTools"
-
-const handler = new ConsoleCallbackHandler();
 
 const Tools = [
   new GetInboxByUserTool(),
@@ -46,7 +43,6 @@ export async function initAgent(sessionId: string) {
         agent,
         tools: Tools,
         maxIterations: 20,
-        callbacks: [handler]
     });
 
     const runnable = new RunnableWithMessageHistory({
